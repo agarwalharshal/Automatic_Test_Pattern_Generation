@@ -9,7 +9,6 @@ struct Ckt
     string operation;
 };
 
-
 map<string, Ckt> parseCircuitFile(const string &circuitFile)
 {
     map<string, Ckt> circuit;
@@ -34,12 +33,11 @@ map<string, Ckt> parseCircuitFile(const string &circuitFile)
                 tokens.push_back(token);
             }
 
-            if(tokens[0] == "FAULT_AT" || tokens[0] == "FAULT_TYPE")
+            if (tokens[0] == "FAULT_AT" || tokens[0] == "FAULT_TYPE")
             {
                 circuit[tokens[0]].input1 = tokens[2];
                 continue;
             }
-
 
             if (tokens.size() != 5 && !(tokens.size() == 4 && tokens[2] == "~"))
             {
@@ -48,19 +46,17 @@ map<string, Ckt> parseCircuitFile(const string &circuitFile)
                 break;
             }
 
-            if(tokens[2] == "~")
+            if (tokens[2] == "~")
             {
                 circuit[tokens[0]].input1 = tokens[3];
                 circuit[tokens[0]].operation = tokens[2];
-
             }
-            else{
-            circuit[tokens[0]].input1 = tokens[2];
-            circuit[tokens[0]].input2 = tokens[4];
-            circuit[tokens[0]].operation = tokens[3];
-
+            else
+            {
+                circuit[tokens[0]].input1 = tokens[2];
+                circuit[tokens[0]].input2 = tokens[4];
+                circuit[tokens[0]].operation = tokens[3];
             }
-            
         }
 
         inputFile.close();
@@ -80,7 +76,7 @@ void findingInputVector(map<string, Ckt> circuit)
     string faulty = circuit["FAULT_AT"].input1;
     int fault = (int)(circuit["FAULT_TYPE"].input1[3]);
 
-    //sensitization
+    // sensitization
     if (circuit[faulty].operation == "~")
     {
         nodeValues[circuit[faulty].input1].push_back(fault);
@@ -88,51 +84,115 @@ void findingInputVector(map<string, Ckt> circuit)
     else
     {
         for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 2; j++)
         {
-            if(circuit[faulty].operation == "&")
+            for (int j = 0; j < 2; j++)
             {
-                if(i&j == !fault)
+                if (circuit[faulty].operation == "&")
                 {
-                    nodeValues[circuit[faulty].input1].push_back(i);
-                    nodeValues[circuit[faulty].input2].push_back(j);
+                    if (i & j == !fault)
+                    {
+                        nodeValues[circuit[faulty].input1].push_back(i);
+                        nodeValues[circuit[faulty].input2].push_back(j);
+                    }
                 }
-            }
-            if(circuit[faulty].operation == "|")
-            {
-                if(i|j == !fault)
+                if (circuit[faulty].operation == "|")
                 {
-                    nodeValues[circuit[faulty].input1].push_back(i);
-                    nodeValues[circuit[faulty].input2].push_back(j);
+                    if (i | j == !fault)
+                    {
+                        nodeValues[circuit[faulty].input1].push_back(i);
+                        nodeValues[circuit[faulty].input2].push_back(j);
+                    }
                 }
-            }
-            if(circuit[faulty].operation == "^")
-            {
-                if(i^j == !fault)
+                if (circuit[faulty].operation == "^")
                 {
-                    nodeValues[circuit[faulty].input1].push_back(i);
-                    nodeValues[circuit[faulty].input2].push_back(j);
+                    if (i ^ j == !fault)
+                    {
+                        nodeValues[circuit[faulty].input1].push_back(i);
+                        nodeValues[circuit[faulty].input2].push_back(j);
+                    }
                 }
             }
         }
-        
     }
-    }
-    
-    map<string, vector<int>>::iterator it = nodeValues.begin();
-    while (it != nodeValues.end())
+    nodeValues[faulty].push_back(!fault);
+
+    // propagation
+    map<string, Ckt>::iterator it = circuit.begin();
+    string current = faulty;
+    int value = !fault;
+    while (it != circuit.end() && current != "Z")
     {
-        cout<<it->first<<" ";
-        for (int i = 0; i < it->second.size(); i++)
+        if (it->first == "FAULT_AT" || it->first == "FAULT_TYPE")
         {
-            cout<<it->second[i]<<" ";
+            ++it;
+            continue;
         }
-        cout<<endl;
+        if (it->second.input1 == current || it->second.input2 == current)
+        {
+            if (it->second.operation == "~")
+            {
+                nodeValues[it->first].push_back(!value);
+                value = !value;
+            }
+            else
+            {
+
+                if (it->second.operation == "&")
+                {
+
+                    if (it->second.input1 == current)
+                    {
+                        nodeValues[it->second.input2].push_back(1);
+                    }
+                    else
+                    {
+                        nodeValues[it->second.input1].push_back(1);
+                    }
+                    nodeValues[it->first].push_back(value);
+                }
+                if (it->second.operation == "|")
+                {
+                    if (it->second.input1 == current)
+                    {
+                        nodeValues[it->second.input2].push_back(0);
+                    }
+                    else
+                    {
+                        nodeValues[it->second.input1].push_back(0);
+                    }
+                    nodeValues[it->first].push_back(value);
+                }
+                if (it->second.operation == "^")
+                {
+                    if (it->second.input1 == current)
+                    {
+                        nodeValues[it->second.input2].push_back(0);
+                    }
+                    else
+                    {
+                        nodeValues[it->second.input1].push_back(0);
+                    }
+                    nodeValues[it->first].push_back(value);
+                }
+            }
+            current = it->first;
+            it = circuit.begin();
+            continue;
+        }
         ++it;
     }
-    
-    
+
+    map<string, vector<int>>::iterator itt = nodeValues.begin();
+    while (itt != nodeValues.end())
+    {
+        cout << itt->first << " ";
+        for (int i = 0; i < itt->second.size(); i++)
+        {
+            cout << itt->second[i] << " ";
+        }
+        cout << endl;
+        ++itt;
+    }
 }
 
 int main()
@@ -142,12 +202,12 @@ int main()
 
     map<string, Ckt> circuit = parseCircuitFile("circuit.txt");
     map<string, Ckt>::iterator it = circuit.begin();
-//     while (it != circuit.end())
-//   {
-//     cout<<it->first<<" "<<it->second.input1<<" "<<it->second.input2<<" "<<it->second.operation<<endl;
-//     ++it;
-//   }
-    
+    //     while (it != circuit.end())
+    //   {
+    //     cout<<it->first<<" "<<it->second.input1<<" "<<it->second.input2<<" "<<it->second.operation<<endl;
+    //     ++it;
+    //   }
+
     findingInputVector(circuit);
 
     return 0;
