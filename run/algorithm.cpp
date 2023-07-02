@@ -9,6 +9,8 @@ struct Ckt
     string operation;
 };
 
+map<string, vector<int>> nodeValues;
+
 map<string, Ckt> parseCircuitFile(const string &circuitFile)
 {
     map<string, Ckt> circuit;
@@ -69,52 +71,99 @@ map<string, Ckt> parseCircuitFile(const string &circuitFile)
     return circuit;
 }
 
+void justification(map<string, Ckt> circuit, string toJustify)
+{
+    if (circuit.count(toJustify) == 0)
+    {
+        return;
+    }
+
+    map<string, Ckt>::iterator it2 = circuit.begin();
+    int value = nodeValues[toJustify][0];
+    if (circuit[toJustify].operation == "~")
+    {
+        nodeValues[circuit[toJustify].input1].push_back(!value);
+        value = !value;
+        justification(circuit, circuit[toJustify].input1);
+    }
+    else
+    {
+        if (circuit[toJustify].operation == "&")
+        {
+            nodeValues[circuit[toJustify].input1].push_back(value);
+            nodeValues[circuit[toJustify].input2].push_back(value);
+            justification(circuit, circuit[toJustify].input1);
+            justification(circuit, circuit[toJustify].input2);
+        }
+        if (circuit[toJustify].operation == "|")
+        {
+            nodeValues[circuit[toJustify].input1].push_back(0); // 0|x = x
+            nodeValues[circuit[toJustify].input2].push_back(value);
+            justification(circuit, circuit[toJustify].input1);
+            justification(circuit, circuit[toJustify].input2);
+        }
+        if (circuit[toJustify].operation == "^")
+        {
+            nodeValues[circuit[toJustify].input1].push_back(value);
+            nodeValues[circuit[toJustify].input2].push_back(0); // 0^x = x
+            justification(circuit, circuit[toJustify].input1);
+            justification(circuit, circuit[toJustify].input2);
+        }
+    }
+}
+
 void findingInputVector(map<string, Ckt> circuit)
 {
-    map<string, vector<int>> nodeValues;
+    // map<string, vector<int>> nodeValues;
     int expectedResult = 0;
     string faulty = circuit["FAULT_AT"].input1;
     int fault = (int)(circuit["FAULT_TYPE"].input1[3]);
 
     // sensitization
-    if (circuit[faulty].operation == "~")
-    {
-        nodeValues[circuit[faulty].input1].push_back(fault);
-    }
-    else
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 2; j++)
-            {
-                if (circuit[faulty].operation == "&")
-                {
-                    if (i & j == !fault)
-                    {
-                        nodeValues[circuit[faulty].input1].push_back(i);
-                        nodeValues[circuit[faulty].input2].push_back(j);
-                    }
-                }
-                if (circuit[faulty].operation == "|")
-                {
-                    if (i | j == !fault)
-                    {
-                        nodeValues[circuit[faulty].input1].push_back(i);
-                        nodeValues[circuit[faulty].input2].push_back(j);
-                    }
-                }
-                if (circuit[faulty].operation == "^")
-                {
-                    if (i ^ j == !fault)
-                    {
-                        nodeValues[circuit[faulty].input1].push_back(i);
-                        nodeValues[circuit[faulty].input2].push_back(j);
-                    }
-                }
-            }
-        }
-    }
     nodeValues[faulty].push_back(!fault);
+    justification(circuit, faulty);
+
+    // sensitization
+    // if (circuit[faulty].operation == "~")
+    // {
+    //     nodeValues[circuit[faulty].input1].push_back(fault);
+    // }
+    // else
+    // {
+    //     for (int i = 0; i < 2; i++)
+    //     {
+    //         for (int j = 0; j < 2; j++)
+    //         {
+    //             if (circuit[faulty].operation == "&")
+    //             {
+    //                 if (i & j == !fault)
+    //                 {
+    //                     nodeValues[circuit[faulty].input1].push_back(i);
+    //                     nodeValues[circuit[faulty].input2].push_back(j);
+    //                 }
+    //             }
+    //             if (circuit[faulty].operation == "|")
+    //             {
+    //                 if (i | j == !fault)
+    //                 {
+    //                     nodeValues[circuit[faulty].input1].push_back(i);
+    //                     nodeValues[circuit[faulty].input2].push_back(j);
+    //                 }
+    //             }
+    //             if (circuit[faulty].operation == "^")
+    //             {
+    //                 if (i ^ j == !fault)
+    //                 {
+    //                     nodeValues[circuit[faulty].input1].push_back(i);
+    //                     nodeValues[circuit[faulty].input2].push_back(j);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // nodeValues[faulty].push_back(!fault);
+
+    string toJustify;
 
     // propagation
     map<string, Ckt>::iterator it = circuit.begin();
@@ -175,6 +224,16 @@ void findingInputVector(map<string, Ckt> circuit)
                     nodeValues[it->first].push_back(value);
                 }
             }
+
+            // finding the value of toJustify
+            if (it->first == "Z")
+            {
+                if (it->second.input1 == current)
+                    toJustify = it->second.input2;
+                else
+                    toJustify = it->second.input1;
+            }
+
             current = it->first;
             it = circuit.begin();
             continue;
@@ -182,17 +241,38 @@ void findingInputVector(map<string, Ckt> circuit)
         ++it;
     }
 
-    map<string, vector<int>>::iterator itt = nodeValues.begin();
-    while (itt != nodeValues.end())
-    {
-        cout << itt->first << " ";
-        for (int i = 0; i < itt->second.size(); i++)
-        {
-            cout << itt->second[i] << " ";
-        }
-        cout << endl;
-        ++itt;
-    }
+    // map<string, vector<int>>::iterator itt = nodeValues.begin();
+    // while (itt != nodeValues.end())
+    // {
+    //     cout << itt->first << " ";
+    //     for (int i = 0; i < itt->second.size(); i++)
+    //     {
+    //         cout << itt->second[i] << " ";
+    //     }
+    //     cout << endl;
+    //     ++itt;
+    // }
+    // cout << "\n\n\n\n";
+    // justification
+    justification(circuit, toJustify);
+
+    // itt = nodeValues.begin();
+    // while (itt != nodeValues.end())
+    // {
+    //     cout << itt->first << " ";
+    //     for (int i = 0; i < itt->second.size(); i++)
+    //     {
+    //         cout << itt->second[i] << " ";
+    //     }
+    //     cout << endl;
+    //     ++itt;
+    // }
+
+    // OUTPUT
+    cout << "[A, B, C, D] = [ " << nodeValues["A"][0] << ", " << nodeValues["B"][0] << ", " << nodeValues["C"][0] << ", " << nodeValues["D"][0] << " ], "
+         << "Z = " << !(nodeValues["Z"][0]) << endl;
+    // nodeValues["Z"][0] = correct result without fault
+    // !(nodeValues["Z"][0]) = faulty result implying FAULT_AT node has FAULT_TYPE fault
 }
 
 int main()
