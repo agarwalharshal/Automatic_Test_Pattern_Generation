@@ -114,27 +114,27 @@ void justification(map<string, Ckt> circuit, string toJustify)
 
 void findingInputVector(map<string, Ckt> circuit)
 {
-    // map<string, vector<int>> nodeValues;
     int expectedResult = 0;
     string faulty = circuit["FAULT_AT"].input1;
     int fault = (int)(circuit["FAULT_TYPE"].input1[2]);
+    fault -= 48;
 
-    // sensitization
+    // SENSITIZATION
     nodeValues[faulty].push_back(!fault);
     justification(circuit, faulty);
 
-    // map<string, vector<int>>::iterator itt = nodeValues.begin();
-    // while (itt != nodeValues.end())
-    // {
-    //     cout << itt->first << " ";
-    //     for (int i = 0; i < itt->second.size(); i++)
-    //     {
-    //         cout << itt->second[i] << " ";
-    //     }
-    //     cout << endl;
-    //     ++itt;
-    // }
-    // cout << "\n\n\n\n";
+    map<string, vector<int>>::iterator itt = nodeValues.begin();
+    while (itt != nodeValues.end())
+    {
+        cout << itt->first << " ";
+        for (int i = 0; i < itt->second.size(); i++)
+        {
+            cout << itt->second[i] << " ";
+        }
+        cout << endl;
+        ++itt;
+    }
+    cout << "\n\n\n\n";
 
     // sensitization
     // if (circuit[faulty].operation == "~")
@@ -178,7 +178,7 @@ void findingInputVector(map<string, Ckt> circuit)
 
     string toJustify;
 
-    // propagation
+    // PROPAGATION
     map<string, Ckt>::iterator it = circuit.begin();
     string current = faulty;
     int value = !fault;
@@ -254,20 +254,34 @@ void findingInputVector(map<string, Ckt> circuit)
         ++it;
     }
 
-    // justification
+    itt = nodeValues.begin();
+    while (itt != nodeValues.end())
+    {
+        cout << itt->first << " ";
+        for (int i = 0; i < itt->second.size(); i++)
+        {
+            cout << itt->second[i] << " ";
+        }
+        cout << endl;
+        ++itt;
+    }
+    cout << "\n\n\n\n";
+
+    // JUSTIFICATION
     justification(circuit, toJustify);
 
-    // itt = nodeValues.begin();
-    // while (itt != nodeValues.end())
-    // {
-    //     cout << itt->first << " ";
-    //     for (int i = 0; i < itt->second.size(); i++)
-    //     {
-    //         cout << itt->second[i] << " ";
-    //     }
-    //     cout << endl;
-    //     ++itt;
-    // }
+    itt = nodeValues.begin();
+    while (itt != nodeValues.end())
+    {
+        cout << itt->first << " ";
+        for (int i = 0; i < itt->second.size(); i++)
+        {
+            cout << itt->second[i] << " ";
+        }
+        cout << endl;
+        ++itt;
+    }
+    cout << "\n\n\n\n";
 
     // OUTPUT
     cout << "[A, B, C, D] = [ " << nodeValues["A"][0] << ", " << nodeValues["B"][0] << ", " << nodeValues["C"][0] << ", " << nodeValues["D"][0] << " ], "
