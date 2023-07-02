@@ -117,11 +117,24 @@ void findingInputVector(map<string, Ckt> circuit)
     // map<string, vector<int>> nodeValues;
     int expectedResult = 0;
     string faulty = circuit["FAULT_AT"].input1;
-    int fault = (int)(circuit["FAULT_TYPE"].input1[3]);
+    int fault = (int)(circuit["FAULT_TYPE"].input1[2]);
 
     // sensitization
     nodeValues[faulty].push_back(!fault);
     justification(circuit, faulty);
+
+    // map<string, vector<int>>::iterator itt = nodeValues.begin();
+    // while (itt != nodeValues.end())
+    // {
+    //     cout << itt->first << " ";
+    //     for (int i = 0; i < itt->second.size(); i++)
+    //     {
+    //         cout << itt->second[i] << " ";
+    //     }
+    //     cout << endl;
+    //     ++itt;
+    // }
+    // cout << "\n\n\n\n";
 
     // sensitization
     // if (circuit[faulty].operation == "~")
@@ -240,19 +253,6 @@ void findingInputVector(map<string, Ckt> circuit)
         }
         ++it;
     }
-
-    // map<string, vector<int>>::iterator itt = nodeValues.begin();
-    // while (itt != nodeValues.end())
-    // {
-    //     cout << itt->first << " ";
-    //     for (int i = 0; i < itt->second.size(); i++)
-    //     {
-    //         cout << itt->second[i] << " ";
-    //     }
-    //     cout << endl;
-    //     ++itt;
-    // }
-    // cout << "\n\n\n\n";
 
     // justification
     justification(circuit, toJustify);
