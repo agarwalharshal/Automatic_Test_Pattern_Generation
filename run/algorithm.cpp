@@ -253,6 +253,7 @@ void findingInputVector(map<string, Ckt> circuit)
     //     ++itt;
     // }
     // cout << "\n\n\n\n";
+
     // justification
     justification(circuit, toJustify);
 
@@ -282,11 +283,6 @@ int main()
 
     map<string, Ckt> circuit = parseCircuitFile("circuit.txt");
     map<string, Ckt>::iterator it = circuit.begin();
-    //     while (it != circuit.end())
-    //   {
-    //     cout<<it->first<<" "<<it->second.input1<<" "<<it->second.input2<<" "<<it->second.operation<<endl;
-    //     ++it;
-    //   }
 
     findingInputVector(circuit);
 
