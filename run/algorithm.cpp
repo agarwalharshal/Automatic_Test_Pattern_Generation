@@ -90,7 +90,7 @@ void justification(map<string, Ckt> circuit, string toJustify)
     {
         if (circuit[toJustify].operation == "&")
         {
-            nodeValues[circuit[toJustify].input1].push_back(value);
+            nodeValues[circuit[toJustify].input1].push_back(1); // 1&x = x
             nodeValues[circuit[toJustify].input2].push_back(value);
             justification(circuit, circuit[toJustify].input1);
             justification(circuit, circuit[toJustify].input2);

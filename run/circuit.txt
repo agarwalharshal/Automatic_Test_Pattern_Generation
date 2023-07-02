@@ -1,7 +1,7 @@
-net_e = ~ A
-net_f = net_e | B
-net_g = C ^ D
-Z = net_f & net_g
+net_e = A & B
+net_f = C | D
+net_g = net_e ^ net_f
+Z = ~ net_g
 
-FAULT_AT = net_e
+FAULT_AT = net_g
 FAULT_TYPE = SA1
