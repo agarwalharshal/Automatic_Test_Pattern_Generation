@@ -1,0 +1,7 @@
+net_e = A & B
+net_f = ~ net_e
+net_g = C ^ D
+Z = net_f | net_g
+
+FAULT_AT = net_g
+FAULT_TYPE = SA0
