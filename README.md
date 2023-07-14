@@ -31,27 +31,27 @@ This [link](https://www.figma.com/file/eIHykHcucw7Ju3Omf21DnY/ATPG-Algorithm?typ
 
 The steps involved in the algorithm are:
 
-<u> _Step 1:_ </u> &nbsp; Parse through the circuit file and store the circuit information in a structure.
+_Step 1:_ &nbsp; Parse through the circuit file and store the circuit information in a structure.
 
-<u>_Step 2:_</u> &nbsp; Declare a global variable to store and access the node values throughout the algorithm.
+_Step 2:_ &nbsp; Declare a global variable to store and access the node values throughout the algorithm.
 
-<u>_Step 3:_</u> &nbsp; Sensitize the faulty node (FAULT_AT) by assigning the value opposite to its stuck-at fault value (FAULT_TYPE). For example, to sensitize the SA0 (stuck-at 0) fault, the faulty node is assigned the opposite value 1.
+_Step 3:_ &nbsp; Sensitize the faulty node (FAULT_AT) by assigning the value opposite to its stuck-at fault value (FAULT_TYPE). For example, to sensitize the SA0 (stuck-at 0) fault, the faulty node is assigned the opposite value 1.
 
-<u>_Step 4:_</u> &nbsp; Backtrack the inputs of the faulty node to justify the sensitized value assigned.
+_Step 4:_ &nbsp; Backtrack the inputs of the faulty node to justify the sensitized value assigned.
 
-<u>_Step 5:_</u> &nbsp; From the faulty node, propagate the fault to a primary output. The output should be the result of the sensitized value. This should be made sure by assigning a value to the second input (if any) of the output gate which ensures the output to be based on the sensitized value.
+_Step 5:_ &nbsp; From the faulty node, propagate the fault to a primary output. The output should be the result of the sensitized value. This should be made sure by assigning a value to the second input (if any) of the output gate which ensures the output to be based on the sensitized value.
 The following 4 equations have been used in the algorithm to ensure this assignment, for
 
+- NOT gate: ~1 = 0, ~0 = 1
 - AND gate: 1 & ⍺ = ⍺
 - OR gate: 0 | ⍺ = ⍺
-- XOR gate: 0 ^ ⍺ = ⍺
-- NOT gate: ~ ⍺ = ⍺ &nbsp; &nbsp; &nbsp; where, ⍺ is a variable.
+- XOR gate: 0 ^ ⍺ = ⍺ &nbsp; &nbsp; &nbsp; where, ⍺ is a variable.
 
-<u>_Step 6:_</u> &nbsp; Keep track of the node to be justified (toJustify) after propagation. This is usually the second input (if any) of the output gate other than the faulty input.
+_Step 6:_ &nbsp; Keep track of the node to be justified (toJustify) after propagation. This is usually the second input (if any) of the output gate other than the faulty input.
 
-<u>_Step 7:_</u> &nbsp; Justify the node and input values by backtracking the inputs from the toJustify node and assigning them the values required to ensure the assigned value of toJustify.
+_Step 7:_ &nbsp; Justify the node and input values by backtracking the inputs from the toJustify node and assigning them the values required to ensure the assigned value of toJustify.
 
-<u>_Step 8:_</u> &nbsp; In the output.txt file, write the resultant input vector, that is, the values assigned to inputs A, B, C and D and the expected value of output to confirm the fault, that is, the opposite of the value stored in Z.
+_Step 8:_ &nbsp; In the output.txt file, write the resultant input vector, that is, the values assigned to inputs A, B, C and D and the expected value of output to confirm the fault, that is, the opposite of the value stored in Z.
 
 # Project Environment
 
@@ -92,8 +92,6 @@ g++ -o out *.cpp
 ```
 
 7. The output will be generated in the **output.txt** file.
-
-This [video](https://youtu.be/3tIOq7tZQCM) is a demonstration to run the project.
 
 # Test Circuits
 
@@ -159,3 +157,9 @@ FAULT_TYPE = SA1
 ```
 [A, B, C, D] = [1, 0, 0, 0], Z = 0
 ```
+
+# Presentation
+
+[Presentation slides](https://docs.google.com/presentation/d/1AkDgvNkNZeNr4l2LFVE2DYCp7AgSHnwhU84iwPNyPO4/edit?usp=sharing&resourcekey=0-yOarKxm0cWXiqG0zqcVfag)
+
+[Working Prototype](https://youtu.be/LCDObpg7OEY)
